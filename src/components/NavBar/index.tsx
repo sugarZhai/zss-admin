@@ -145,7 +145,7 @@ function Navbar({ show }: { show: boolean }) {
       <div className={styles.left}>
         <div className={styles.logo}>
           {/* <Logo /> */}
-          <img src={Logo} />
+          <img src={Logo}/>
           <div className={styles['logo-name']}>芝麻背调</div>
         </div>
       </div>

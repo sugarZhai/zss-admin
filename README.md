@@ -76,4 +76,3 @@ tar -cvf hris-web.tar ./dist
 ## 注意事项
 
 1、bizcharts v4.1.22 所依赖的 react 版本是 v16.14.0, 与其他依赖 react 版本要保持一致，否则会有版本冲突
-2、node版本为v18.16.1

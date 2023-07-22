@@ -1,43 +1,58 @@
+/* eslint-disable @typescript-eslint/no-var-requires */
 const path = require('path');
 const {
   override,
   addWebpackModuleRule,
   addWebpackPlugin,
   addWebpackAlias,
-  addLessLoader
+  overrideDevServer,
 } = require('customize-cra');
-const HardSourcePlugin = require('hard-source-webpack-plugin'); //提供中间缓存,来加速 webpack 的构建速度
 const ArcoWebpackPlugin = require('@arco-plugins/webpack-react');
+const addLessLoader = require('customize-cra-less-loader');
 const setting = require('./src/settings.json');
 const CompressionWebpackPlugin = require('compression-webpack-plugin');
 // 打包配置
-const addCustomize = () => (config) => {
-  if (process.env.NODE_ENV === 'production') {
-    //关闭sourceMap
-    config.devtool = false;
-    //配置打包后的文件位置
-    //config.output.path = path.join(__dirname, 'dist');
-    //添加js打包gzip配置
-    config.plugins.push(
-      new CompressionWebpackPlugin({
-        test: /\.js$|\.css$/,
-        threshold: 1024,
-      })
-    );
-  }
-  // 配置 filesystem 缓存
-  config.cache = {
-    type: 'filesystem',
+// const addCustomize = () => (config) => {
+// if (process.env.NODE_ENV === 'production') {
+// 关闭sourceMap
+// config.devtool = false;
+// 配置打包后的文件位置
+// 修改输出目录为 "dist"
+// config.output.path = path.join(__dirname, 'dist');
+// 添加js打包gzip配置
+// config.plugins.push(
+//   new CompressionWebpackPlugin({
+//     test: /\.js$|\.css$/,
+//     threshold: 1024,
+//   })
+// );
+// }
+// return config;
+// };
+// 跨域配置
+const devServerConfig = () => (config) => {
+  return {
+    ...config,
+    // 服务开启gzip
+    compress: true,
+    proxy: {
+      '/api': {
+        target: 'xxx',
+        changeOrigin: true,
+        pathRewrite: {
+          '^/api': '/api',
+        },
+      },
+    },
   };
-  return config;
 };
 
 module.exports = {
   webpack: override(
-    addCustomize(),
+    // addCustomize(),
     addLessLoader({
       lessLoaderOptions: {
-        lessOptions: {sourceMap: false},
+        lessOptions: {},
       },
     }),
     addWebpackModuleRule({
@@ -45,7 +60,6 @@ module.exports = {
       loader: '@svgr/webpack',
     }),
     addWebpackPlugin(
-      new HardSourcePlugin(),
       new ArcoWebpackPlugin({
         theme: '@arco-themes/react-arco-pro',
         modifyVars: {
@@ -55,7 +69,7 @@ module.exports = {
     ),
     addWebpackAlias({
       '@': path.resolve(__dirname, 'src'),
-      '@utils': path.resolve(__dirname, 'src/utils')  
     })
   ),
+  devServer: overrideDevServer(devServerConfig()),
 };
